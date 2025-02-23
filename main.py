@@ -15,7 +15,8 @@ app.add_middleware(
         "http://localhost:5173",
         "http://localhost:3000",
         "https://notethetic.vercel.app",
-        "https://notethetic-frontend.vercel.app"  # Your frontend domain
+        "https://notethetic-frontend.vercel.app",  # Your frontend domain
+        "https://notethetic-frontend-git-main-yourusername.vercel.app"  # Add this temporary deployment URL
     ],
     allow_credentials=False,  # Keep this false
     allow_methods=["*"],
@@ -32,6 +33,12 @@ class ChatMessage(BaseModel):
 @app.post("/api/chat")
 async def chat(message: ChatMessage):
     try:
+        print(f"Received message: {message.message}") # Add logging
+        print(f"Space ID: {message.spaceId}")
+        
+        if not openai.api_key:
+            raise HTTPException(status_code=500, detail="OpenAI API key not configured")
+
         response = await openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
@@ -42,4 +49,10 @@ async def chat(message: ChatMessage):
         
         return {"response": response.choices[0].message.content}
     except Exception as e:
+        print(f"Error in chat endpoint: {str(e)}") # Add logging
         raise HTTPException(status_code=500, detail=str(e))
+
+# Add a test endpoint
+@app.get("/api/test")
+async def test():
+    return {"status": "ok"}
