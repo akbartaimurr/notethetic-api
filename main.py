@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
-import openai
+from openai import OpenAI  # Updated import
 
 load_dotenv()
 app = FastAPI()
@@ -20,8 +20,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load API key from environment variable
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class ChatMessage(BaseModel):
     message: str
@@ -33,18 +33,18 @@ async def chat(message: ChatMessage):
         print(f"Received message: {message.message}") # Add logging
         print(f"Space ID: {message.spaceId}")
         
-        if not openai.api_key:
+        if not client.api_key:
             raise HTTPException(status_code=500, detail="OpenAI API key not configured")
 
-        response = await openai.ChatCompletion.create(
-            model="gpt-4",
+        completion = await client.chat.completions.create(
+            model="gpt-3.5-turbo",  # Changed to 3.5-turbo as it's more cost-effective
             messages=[
                 {"role": "system", "content": "You are a helpful AI tutor."},
                 {"role": "user", "content": message.message}
             ]
         )
         
-        return {"response": response.choices[0].message.content}
+        return {"response": completion.choices[0].message.content}
     except Exception as e:
         print(f"Error in chat endpoint: {str(e)}") # Add logging
         raise HTTPException(status_code=500, detail=str(e))
