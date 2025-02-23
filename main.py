@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
-from openai import OpenAI  # Correct import for new version
+from openai import OpenAI
 
 # Load environment variables
 load_dotenv()
@@ -20,13 +20,13 @@ app.add_middleware(
         "https://notethetic.vercel.app",
         "*"  # Temporarily allow all origins for testing
     ],
-    allow_credentials=True,  # Set to True if you need credentials
-    allow_methods=["GET", "POST", "OPTIONS"],  # Explicitly specify methods
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
     expose_headers=["*"],
 )
 
-# Initialize OpenAI client (correct way in v1.0.0+)
+# Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class ChatMessage(BaseModel):
@@ -36,33 +36,32 @@ class ChatMessage(BaseModel):
 @app.post("/api/chat")
 async def chat(message: ChatMessage):
     try:
-        print(f"Received message: {message.message}")  # Add logging
+        print(f"Received message: {message.message}")
         print(f"Space ID: {message.spaceId}")
-        
+
         if not client.api_key:
             raise HTTPException(status_code=500, detail="OpenAI API key not configured")
 
-        # Call OpenAI API using the new interface
+        # Call OpenAI API using the new client and model
         response = await client.chat.completions.create(
-            model="gpt-4o-mini",  # Adjust to correct model if needed
+            model="gpt-4o-mini",  # Update the model as needed
             messages=[
                 {"role": "system", "content": "You are a helpful AI tutor."},
                 {"role": "user", "content": message.message}
             ]
         )
 
-        return {"response": response.choices[0].message.content}
-
+        return {"response": response.choices[0].message['content']}
     except Exception as e:
-        print(f"Error in chat endpoint: {str(e)}")  # Add logging
+        print(f"Error in chat endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
-# Add a test endpoint
-@app.get("/api/test")
-async def test():
-    return {"status": "ok"}
 
 # Handle OPTIONS request explicitly for CORS preflight
 @app.options("/api/chat")
 async def options_chat():
+    return {"status": "ok"}
+
+# Add a test endpoint
+@app.get("/api/test")
+async def test():
     return {"status": "ok"}
