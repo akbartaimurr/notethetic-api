@@ -12,11 +12,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",
+        "http://localhost:5173",  # Your local Vite dev server
         "http://localhost:3000",
-        "https://notethetic.vercel.app",
-        "https://notethetic-frontend.vercel.app",  # Your frontend domain
-        "https://notethetic-frontend-git-main-yourusername.vercel.app"  # Add this temporary deployment URL
     ],
     allow_credentials=False,  # Keep this false
     allow_methods=["*"],
