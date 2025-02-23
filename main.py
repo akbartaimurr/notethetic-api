@@ -25,7 +25,7 @@ app.add_middleware(
 )
 
 # Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # Get key from environment variable
 
 class ChatMessage(BaseModel):
     message: str
