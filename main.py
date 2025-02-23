@@ -14,10 +14,10 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:3000",
-        "https://notethetic.vercel.app",  # Your frontend URL
-        "*"  # Temporarily allow all origins for testing
+        "https://notethetic.vercel.app",
+        "https://notethetic-frontend.vercel.app"  # Your frontend domain
     ],
-    allow_credentials=False,  # Changed to False since we're not using credentials
+    allow_credentials=False,  # Keep this false
     allow_methods=["*"],
     allow_headers=["*"],
 )
