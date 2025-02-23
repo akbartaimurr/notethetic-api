@@ -13,10 +13,11 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://your-frontend-domain.com",
-        "https://your-frontend-domain.vercel.app"  # Add your frontend Vercel domain
+        "http://localhost:3000",
+        "https://notethetic.vercel.app",  # Your frontend URL
+        "*"  # Temporarily allow all origins for testing
     ],
-    allow_credentials=True,
+    allow_credentials=False,  # Changed to False since we're not using credentials
     allow_methods=["*"],
     allow_headers=["*"],
 )
