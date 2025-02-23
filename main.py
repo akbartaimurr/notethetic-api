@@ -8,16 +8,20 @@ from openai import OpenAI  # Updated import
 load_dotenv()
 app = FastAPI()
 
-# Configure CORS
+# Configure CORS - updated origins list
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # Your local Vite dev server
+        "http://localhost:5173",
         "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "https://notethetic.vercel.app",
+        "*"  # Temporarily allow all origins for testing
     ],
-    allow_credentials=False,  # Keep this false
-    allow_methods=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],  # Explicitly specify methods
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Initialize OpenAI client
