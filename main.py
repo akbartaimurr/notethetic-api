@@ -7,6 +7,12 @@ from openai import OpenAI
 import json
 
 load_dotenv()
+
+# Check for API key
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise ValueError("OPENAI_API_KEY environment variable is not set")
+
 app = FastAPI()
 
 app.add_middleware(
@@ -17,7 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=api_key)
 
 class ChatMessage(BaseModel):
     message: str
@@ -33,7 +39,7 @@ async def chat(message: ChatMessage):
             raise HTTPException(status_code=500, detail="OpenAI API key not configured")
 
         completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Changed from gpt-4o-mini
+            model="gpt-4o-mini",  # Changed from gpt-4o-mini
             messages=[
                 {"role": "system", "content": "You are a helpful AI tutor."},
                 {"role": "user", "content": message.message}
