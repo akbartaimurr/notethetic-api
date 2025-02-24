@@ -4,29 +4,19 @@ from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
+import json
 
-# Load environment variables
 load_dotenv()
-
 app = FastAPI()
 
-# Configure CORS - updated origins list
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:5173",
-        "https://notethetic.vercel.app",
-        "*"  # Temporarily allow all origins for testing
-    ],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_origins=["*"],  # Allow all origins temporarily
+    allow_credentials=False,  # Set to False for "*" origins
+    allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"],
 )
 
-# Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class ChatMessage(BaseModel):
@@ -42,26 +32,24 @@ async def chat(message: ChatMessage):
         if not client.api_key:
             raise HTTPException(status_code=500, detail="OpenAI API key not configured")
 
-        # Call OpenAI API using the new client and model
-        response = await client.chat.completions.create(
-            model="gpt-4o-mini",  # Update the model as needed
+        completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",  # Changed from gpt-4o-mini
             messages=[
                 {"role": "system", "content": "You are a helpful AI tutor."},
                 {"role": "user", "content": message.message}
-            ]
+            ],
+            temperature=0.7,
+            max_tokens=1000
         )
+        
+        # Access response content correctly
+        response_content = completion.choices[0].message.content
+        return {"response": response_content}
 
-        return {"response": response.choices[0].message['content']}
     except Exception as e:
         print(f"Error in chat endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Handle OPTIONS request explicitly for CORS preflight
-@app.options("/api/chat")
-async def options_chat():
-    return {"status": "ok"}
-
-# Add a test endpoint
 @app.get("/api/test")
 async def test():
     return {"status": "ok"}
