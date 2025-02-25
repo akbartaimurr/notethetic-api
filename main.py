@@ -56,7 +56,7 @@ async def generate_transcript(request: TranscriptRequest):
     try:
         # Prepare Actor input
         run_input = {
-            "outputFormat": "captions",
+            "outputFormat": "textWithTimestamps",
             "urls": [request.url],
             "maxRetries": 6,
             "proxyOptions": {
