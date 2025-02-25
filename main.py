@@ -20,11 +20,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize OpenAI client with just the API key
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    base_url="https://api.openai.com/v1"  # Explicitly set base URL
-)
+# Initialize OpenAI client (simplified)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Initialize Apify client
 apify_client = ApifyClient("apify_api_RE5Z85Cacc6klMw8aFpYCgdqfmuO2h0qG9TJ")
