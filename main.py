@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from apify_client import ApifyClient
 import json
+from supabase import create_client
 
 load_dotenv()
 
@@ -27,6 +28,12 @@ client = OpenAI(
 
 # Initialize Apify client
 apify_client = ApifyClient("apify_api_RE5Z85Cacc6klMw8aFpYCgdqfmuO2h0qG9TJ")
+
+# Initialize Supabase client
+supabase = create_client(
+    'https://ybrsfxqrvylxxsahxgkr.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlicnNmeHFydnlseHhzYWh4Z2tyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkzNzYwODQsImV4cCI6MjA1NDk1MjA4NH0.rgoH-GIiiYAacsJiM_g_4GRnZfYed1USrApIc8hUnLg'
+)
 
 class ChatMessage(BaseModel):
     message: str
