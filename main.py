@@ -31,6 +31,7 @@ apify_client = ApifyClient("apify_api_RE5Z85Cacc6klMw8aFpYCgdqfmuO2h0qG9TJ")
 class ChatMessage(BaseModel):
     message: str
     spaceId: str
+    lastAIMessage: str | None
 
 class TranscriptRequest(BaseModel):
     url: str
@@ -38,15 +39,45 @@ class TranscriptRequest(BaseModel):
 @app.post("/api/chat")
 async def chat(message: ChatMessage):
     try:
-        completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Using a stable model
-            messages=[
-                {"role": "system", "content": "You are a helpful AI tutor for an app called notethetic. You are here to help users with their notes and study materials. You can answer questions, provide explanations, and help users understand complex topics. You can also provide study tips and resources to help users learn more effectively. INCLUDE METADATA IN YOUR RESPONSES"},
+        messages_for_gpt = [
+            {"role": "system", "content": "You are a helpful AI tutor. Consider the following chat history context and question:"}
+        ]
+
+        # If there's a last AI message, get a summary and use it
+        if message.lastAIMessage:
+            # First summarize the last AI message
+            summary_completion = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "Summarize the following AI response in one short sentence:"},
+                    {"role": "user", "content": message.lastAIMessage}
+                ]
+            )
+            summary = summary_completion.choices[0].message.content
+            
+            # Add context to the conversation
+            messages_for_gpt.extend([
+                {"role": "system", "content": f"Previous context: {summary}"},
                 {"role": "user", "content": message.message}
-            ]
+            ])
+        else:
+            messages_for_gpt.append({"role": "user", "content": message.message})
+
+        # Get AI response with context
+        completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages_for_gpt
         )
         
-        return {"response": completion.choices[0].message.content}
+        ai_response = completion.choices[0].message.content
+
+        # Update history_sum in spaces table
+        supabase.table('spaces').update({
+            'history_sum': summary if message.lastAIMessage else ai_response
+        }).eq('id', message.spaceId).execute()
+
+        return {"response": ai_response}
+        
     except Exception as e:
         print(f"Error in chat endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
