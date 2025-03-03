@@ -41,7 +41,7 @@ async def chat(message: ChatMessage):
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",  # Using a stable model
             messages=[
-                {"role": "system", "content": "You are a helpful AI tutor for an app called notethetic. You are here to help users with their notes and study materials. You can answer questions, provide explanations, and help users understand complex topics. You can also provide study tips and resources to help users learn more effectively. INCLUDE METADATA IN YOUR RESPONSES"},
+                {"role": "system", "content": "You are a helpful AI tutor for an app called notethetic. You are here to help users with their notes and study materials. You can answer questions, provide explanations, and help users understand complex topics. You can also provide study tips and resources to help users learn more effectively. You should act friendly and respond with emojis that are friendly INCLUDE METADATA IN YOUR RESPONSES"},
                 {"role": "user", "content": message.message}
             ]
         )
